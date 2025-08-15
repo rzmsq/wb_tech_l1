@@ -1,11 +1,20 @@
 package main
 
 import (
-	"log"
 	"os"
 	"strconv"
 	"sync"
 )
+
+// wrapper запускает переданную функцию в отдельной горутине и добавляет её в WaitGroup
+func wrapper(wg *sync.WaitGroup, fn func()) {
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		fn()
+	}()
+}
 
 func main() {
 	// Создание массива с числами
@@ -13,23 +22,21 @@ func main() {
 	// Создание WaitGroup для ожидания завершения всех горутин
 	var wg sync.WaitGroup
 
-	// Запуск горутин для каждого элемента массива
-	for _, i := range arr {
-		// Увеличение счетчика WaitGroup
-		wg.Add(1)
-		// Запуск горутины для обработки числа
-		go func(val int) {
-			// Уменьшение счетчика WaitGroup при завершении горутины
-			defer wg.Done()
-			// Печать квадрата числа в стандартный вывод
-			_, err := os.Stdout.Write([]byte(strconv.Itoa(val*val) + "\n"))
-			// Проверка на ошибки при записи в стандартный вывод
+	// Запуск горутины для вычисления квадратов чисел в массиве и вывода их на экран
+	// Используется wrapper для запуска функции в горутине
+	wrapper(&wg, func() {
+		for i := 0; i < len(arr); i++ {
+			arr[i] *= arr[i]
+		}
+
+		for _, el := range arr {
+			// Вывод каждого элемента массива в stdout
+			_, err := os.Stdout.Write([]byte(strconv.Itoa(el) + " "))
 			if err != nil {
-				log.Fatalf("error writing to stdout: %v", err)
-				return
+				panic(err)
 			}
-		}(i) // передача значения в горутину
-	}
+		}
+	})
 
 	// Ожидание завершения всех горутин
 	wg.Wait()
