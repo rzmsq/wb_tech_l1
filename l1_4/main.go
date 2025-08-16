@@ -71,7 +71,7 @@ func main() {
 	// Обработка сигналов завершения программы
 	go func() {
 		// Ожидание сигналов SIGINT или SIGTERM для корректного завершения
-		sigChan := make(chan os.Signal, 1)
+		sigChan := make(chan os.Signal, 2)
 		// Регистрация сигналов для перехвата
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 		// Блокировка до получения сигнала
