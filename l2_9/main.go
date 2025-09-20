@@ -77,7 +77,12 @@ func unpack(s string) (string, error) {
 }
 
 func main() {
-	str := "45"
+	var str string
+	if len(os.Args) < 2 {
+		str = "45"
+	} else if len(os.Args) == 2 {
+		str = os.Args[1]
+	}
 	res, err := unpack(str)
 	if err != nil {
 		fmt.Println(err)
